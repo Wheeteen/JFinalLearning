@@ -1,4 +1,4 @@
-package common;
+package common.routes;
 
 import com.jfinal.config.Routes;
 

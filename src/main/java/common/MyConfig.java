@@ -1,7 +1,11 @@
 package common;
 
 import com.jfinal.config.*;
+import com.jfinal.kit.Prop;
+import com.jfinal.kit.PropKit;
 import com.jfinal.template.Engine;
+import common.routes.AdminRoutes;
+import common.routes.FrontRoutes;
 
 /**
  * @description:
@@ -15,7 +19,7 @@ public class MyConfig extends JFinalConfig {
     * */
     @Override
     public void configConstant(Constants constants) {
-        // 如这个配置会对每次的请求输出请求信息
+        // 如这个配置会对每次的请求输出请求信息 *开发者模式*
         constants.setDevMode(true);
 
         /*
@@ -23,6 +27,18 @@ public class MyConfig extends JFinalConfig {
         * 在Controller中可以通过getPara(int index)分别取出这些值
         * */
         constants.setUrlParaSeparator("&");
+
+        /*
+        * PropKit工具类用来操作外部配置文件
+        * 可以在任意时空使用
+        * 第一次使用use加在的配置会成为主配置
+        * 可以通过PropKit.get(...)直接取值
+        * 这个方法加载配置文件内容后会讲数据存在内存里面
+        * 可以通过PropKit.useless(...)来清除内容
+        * */
+        PropKit.use("firstConfig.txt");
+
+        constants.setDevMode(PropKit.getBoolean("devMode"));
     }
 
     /**
@@ -94,7 +110,16 @@ public class MyConfig extends JFinalConfig {
      * */
     @Override
     public void configPlugin(Plugins plugins) {
+        // 非第一次使用PropKit.use(...)加载的配置 需要通过每次使用use类指定配置文件名后再来取值
+        String username = PropKit.use("secondConfig.txt").get("username");
 
+        // 使用得到的username
+
+        // 也可以先得到一个Prop对象 再通过该对象取值
+        Prop p = PropKit.use("secondConfig.txt");
+        String password = p.get("password");
+
+        // 使用得到的password
     }
 
     /**
