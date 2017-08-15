@@ -91,4 +91,25 @@ public class HelloController extends Controller {
         Object sID = getSessionAttr("sID");
         HttpSession session = getSession();
     }
+
+    /**
+     * render系列方法
+     * 这个系列的方法支持将不同的渲染视图返回给客户端
+     * 支持的类型有：
+     *  JFinal Template、FreeMarker、JSP、Velocity、JSON、File、Text、Html
+     * 还看可以通过继承Render抽象类来无限扩展视图类型
+     *
+     * 通常情况下使用Controller.render(String)方法来渲染视图
+     * 这时候视图渲染类型由JFinalConfig.configConstant(constant)配置中的
+     *  constant.setViewType(ViewType)来决定
+     *      该方法支持的viewType有：
+     *          JFINAL_TEMPLATE
+     *          FreeMarker
+     *          JSP
+     *          Velocity
+     *  缺省时默认为JFINAL_TEMPLATE
+     * */
+    public void testRender(){
+        render("test.html");
+    }
 }

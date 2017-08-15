@@ -1,1 +1,4 @@
 .idea
+src/test/
+target/generated-sources/
+target/classes/
