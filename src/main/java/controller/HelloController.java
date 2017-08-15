@@ -1,6 +1,9 @@
 package controller;
 
+import com.jfinal.aop.Before;
 import com.jfinal.core.Controller;
+import interceptor.AInterceptor;
+import interceptor.InjectInterceptor;
 import model.Blog;
 
 import javax.servlet.http.HttpSession;
@@ -10,12 +13,16 @@ import javax.servlet.http.HttpSession;
  * @author: youyinnn
  * @date: 2017/8/15
  */
+// 配置一个Class级别的拦截器 它会拦截本类的所有方法
+@Before(InjectInterceptor.class)
 public class HelloController extends Controller {
 
     public void index(){
         renderText("这个方法是一个action");
     }
 
+    //配置多个Method级别的拦截器 仅拦截本方法
+    @Before({InjectInterceptor.class, AInterceptor.class})
     public String test(){
         return "index.html";
     }
@@ -111,5 +118,18 @@ public class HelloController extends Controller {
      * */
     public void testRender(){
         render("test.html");
+    }
+
+    /**
+     * 对于控制层的触发 只需要简单的访问action方法即可
+     * 但是对于业务层拦截器的触发 需要先使用enhance方法对目标对象进行增强 然后再去调用目标方法
+     * 以下是例子
+     *
+     * Duang、Enhancer用来对目标进行增强 让其拥有AOP能力 具体看“AOPEverywhere”
+     * */
+    public void hello(){
+        HelloService helloService = enhance(HelloService.class);
+
+        helloService.hello("Jim",20);
     }
 }

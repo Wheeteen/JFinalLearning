@@ -126,10 +126,31 @@ public class MyConfig extends JFinalConfig {
      * 此方法用来配置项目的全局拦截器
      *      全局拦截所有的action请求
      *      除非使用了@Clear在controller中清除
+     * 全局拦截器分为两种：
+     *  1、控制层拦截器
+     *  2、业务层拦截器
+     *
+     * 多级别拦截器的执行顺序如下：
+     *  Global、Inject、Class、Method
+     *
+     * Clear注释：
+     *  用于清除自身所处层级以上的拦截器
+     *
+     *  例：
+     *      Clear声明在Method层的时候 会清除Global、Inject、CLass级别的拦截器
+     *      Clear声明在Class层的时候 会清除Global、Inject级别的拦截器
+     *
+     *      Clear注释还可以设置参数 用于清除指定的"上层"拦截器 @Clear({AAA.class,BBB.class})
      * */
     @Override
     public void configInterceptor(Interceptors interceptors) {
         //interceptors.add(new AuthInterceptor);
+
+        // 全局的控制层拦截器
+        //interceptors.addGlobalActionInterceptor(...);
+
+        // 全局业务层拦截器
+        //interceptors.addGlobalServiceInterceptor(...);
     }
 
     /**

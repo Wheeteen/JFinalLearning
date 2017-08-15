@@ -1,6 +1,7 @@
 package common.routes;
 
 import com.jfinal.config.Routes;
+import interceptor.AInterceptor;
 
 /**
  * @description:
@@ -16,11 +17,14 @@ public class AdminRoutes extends Routes {
     public void config() {
         setBaseViewPath("/view/admin");
 
-        //
-        //addInterceptor(new AdminInterceptor);
+        /*
+        * 以下方法向AdminRoutes中添加了拦截器
+        * 这个拦截器会工作于改Routes类下的所有Controller
+        * 是Class级别的拦截
+        * */
+        addInterceptor(new AInterceptor());
 
         //add("/admin", AdminController.class);
-
         //add("/admin/user", UserController.class);
     }
 }
