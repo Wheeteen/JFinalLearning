@@ -50,6 +50,13 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>RELEASE</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.jfinal</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>8.1.8</version>
+        </dependency>
+
     </dependencies>
 
 </project>
