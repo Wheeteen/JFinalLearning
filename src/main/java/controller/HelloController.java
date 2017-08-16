@@ -6,8 +6,6 @@ import interceptor.AInterceptor;
 import interceptor.InjectInterceptor;
 import model.Blog;
 
-import javax.servlet.http.HttpSession;
-
 /**
  * @description:
  * @author: youyinnn
@@ -18,7 +16,9 @@ import javax.servlet.http.HttpSession;
 public class HelloController extends Controller {
 
     public void index(){
-        renderText("这个方法是一个action");
+        System.out.println("hit");
+        //renderText("这个方法是一个action");
+        render("index.html");
     }
 
     //配置多个Method级别的拦截器 仅拦截本方法
@@ -96,7 +96,7 @@ public class HelloController extends Controller {
     public void testSession(){
         setSessionAttr("sID","6RW6EF");
         Object sID = getSessionAttr("sID");
-        HttpSession session = getSession();
+        //HttpSession session = getSession();
     }
 
     /**

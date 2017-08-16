@@ -4,8 +4,7 @@ import com.jfinal.config.*;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.jfinal.template.Engine;
-import common.routes.AdminRoutes;
-import common.routes.FrontRoutes;
+import controller.HelloController;
 
 /**
  * @description:
@@ -13,6 +12,8 @@ import common.routes.FrontRoutes;
  * @date: 2017/8/14
  */
 public class MyConfig extends JFinalConfig {
+
+
 
     /**
     * 此方法用来配置JFinal常量
@@ -26,7 +27,7 @@ public class MyConfig extends JFinalConfig {
         * 这个参数设置url中携带多个参数之间的分隔符 默认是“-”
         * 在Controller中可以通过getPara(int index)分别取出这些值
         * */
-        constants.setUrlParaSeparator("&");
+        //constants.setUrlParaSeparator("&");
 
         /*
         * PropKit工具类用来操作外部配置文件
@@ -36,9 +37,9 @@ public class MyConfig extends JFinalConfig {
         * 这个方法加载配置文件内容后会讲数据存在内存里面
         * 可以通过PropKit.useless(...)来清除内容
         * */
-        PropKit.use("firstConfig.txt");
-
-        constants.setDevMode(PropKit.getBoolean("devMode"));
+        //PropKit.use("firstConfig.txt");
+        //
+        //constants.setDevMode(PropKit.getBoolean("devMode"));
     }
 
     /**
@@ -56,7 +57,7 @@ public class MyConfig extends JFinalConfig {
         *
         * 注意：当view以“/”打头时表示绝对路径 baseViewPath 和 viewPath 会被忽略
         * */
-        routes.setBaseViewPath("BaseView");
+        routes.setBaseViewPath("view");
 
         //routes.addInterceptor(new FrontInterceptor);
 
@@ -82,7 +83,7 @@ public class MyConfig extends JFinalConfig {
         *       1、controllerKey、method、urlPara三部分必须使用“/”分隔
         *       2、controllerKey自身也可以包含正斜杠 如“/admin/article” 实质上实现了struts2的命名空间
         * */
-        //routes.add("/hello",HelloController.class);
+        routes.add("/se/hello", HelloController.class, "");
 
         /*
         * 我们把前后端的路由拆分后在这里合并起来
@@ -91,8 +92,8 @@ public class MyConfig extends JFinalConfig {
         * 每个模块的开发团队都不需要同时修改JFinalConfig文件
         * 避免版本冲突
         * */
-        routes.add(new FrontRoutes());
-        routes.add(new AdminRoutes());
+        //routes.add(new FrontRoutes());
+        //routes.add(new AdminRoutes());
     }
 
     /**
@@ -166,16 +167,16 @@ public class MyConfig extends JFinalConfig {
      * */
     @Override
     public void afterJFinalStart() {
-        super.afterJFinalStart();
         System.out.println("JFinal Started!!");
     }
 
     /**
      * JFinal会在系统关闭前回调beforeJFinalStop方法
+     * 但是好像打印不出东西 猜测是在项目结束之后运行的 项目内看不到
      * */
     @Override
     public void beforeJFinalStop() {
-        super.beforeJFinalStop();
-        System.out.println("JFinal Started!!");
+
+        System.out.println("JFinal Stop!!***");
     }
 }
