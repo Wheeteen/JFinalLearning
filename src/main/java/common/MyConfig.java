@@ -4,6 +4,7 @@ import com.jfinal.config.*;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.dialect.MysqlDialect;
 import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.template.Engine;
 import controller.HelloController;
@@ -132,11 +133,9 @@ public class MyConfig extends JFinalConfig {
 
         // druid 的数据源插件
         DruidPlugin druidPlugin = new DruidPlugin(jdbc_url,jdbc_username,jdbc_password,jdbc_driver);
-        plugins.add(druidPlugin);
 
         // ActiveRecord 的支持插件
         ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
-        plugins.add(activeRecordPlugin);
 
         /*
         * addMapping方法建立了数据库表名到Model的映射关系
@@ -148,7 +147,12 @@ public class MyConfig extends JFinalConfig {
         activeRecordPlugin.addMapping("account", Account.class);
         activeRecordPlugin.addMapping("book", "book_id", Book.class);
 
+        // 设置方言
+        activeRecordPlugin.setDialect(new MysqlDialect());
 
+        // 添加插件
+        plugins.add(druidPlugin);
+        plugins.add(activeRecordPlugin);
     }
 
     /**

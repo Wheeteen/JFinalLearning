@@ -1,11 +1,13 @@
 package model;
 
+import com.jfinal.kit.PathKit;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.druid.DruidPlugin;
+import com.jfinal.template.Engine;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,8 +36,24 @@ public class DbAndRecord {
 
         // ActiveRecord 的支持插件
         ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
+
+        // 添加映射
         activeRecordPlugin.addMapping("account", Account.class);
         activeRecordPlugin.addMapping("book", "book_id", Book.class);
+
+        /*
+        * sql管理配置
+        * setBaseSqlTemplatePath方法将sql基础路径设置为classpath路径下了
+        * 为当前的activeRecordPlugin对象添加sql股那里
+        * 可以多此调用addSqlTemplate来添加多个外部sql文件 并且对于不同的对象
+        * 他们之间的配置都是独立的 有利于多数据源下的sql管理
+        *
+        * 需要注意的是 sql管理模块使用的模板引擎不是在Web全局配置类中的configEngine方法中配置的
+        * 因此在配置一些扩展时需要用activeRecordPlugin.getEngine()方法 然后对该Engine对象进行配置
+        * */
+        activeRecordPlugin.setBaseSqlTemplatePath(PathKit.getRootClassPath());
+        activeRecordPlugin.addSqlTemplate("demo.sql");
+        Engine engine = activeRecordPlugin.getEngine();
 
         /*
         * 为了让ActiveRecordPlugin和DruidPlugin独立于Web项目启动 需要手动start插件就可以使用
@@ -92,4 +110,13 @@ public class DbAndRecord {
 
         System.out.println(succeed);
     }
+
+    @Test
+    public void testDynamicSQL(){
+        String sql = Db.getSql("findRichMan");
+
+        System.out.println(sql);
+    }
+
+
 }
