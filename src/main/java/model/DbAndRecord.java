@@ -115,7 +115,9 @@ public class DbAndRecord {
     public void testDynamicSQL(){
         String sql = Db.getSql("findRichMan");
 
-        System.out.println(sql);
+        List<Record> records = Db.find(sql);
+
+        System.out.println(records);
     }
 
 
