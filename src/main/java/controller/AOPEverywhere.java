@@ -3,7 +3,7 @@ package controller;
 import com.jfinal.aop.Duang;
 import com.jfinal.aop.Enhancer;
 import interceptor.InjectInterceptor;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 /**
  * @description:

@@ -141,10 +141,12 @@ public class MyConfig extends JFinalConfig {
         /*
         * addMapping方法建立了数据库表名到Model的映射关系
         * 第一行代码映射的表 默认主键名字为“id”
-        * 第二行
+        * 第二行代码指定非默认格式的主键
+        *
+        * ActiveRecordPlugin可以独立于JFinalWeb项目 不过在使用前需要手动start 详情见Account.java
         * */
         activeRecordPlugin.addMapping("account", Account.class);
-        activeRecordPlugin.addMapping("book", Book.class);
+        activeRecordPlugin.addMapping("book", "book_id", Book.class);
     }
 
     /**
