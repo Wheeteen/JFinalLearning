@@ -3,8 +3,12 @@ package common;
 import com.jfinal.config.*;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.template.Engine;
 import controller.HelloController;
+import model.Account;
+import model.Book;
 
 /**
  * @description:
@@ -16,8 +20,8 @@ public class MyConfig extends JFinalConfig {
 
 
     /**
-    * 此方法用来配置JFinal常量
-    * */
+     * 此方法用来配置JFinal常量
+     * */
     @Override
     public void configConstant(Constants constants) {
         // 如这个配置会对每次的请求输出请求信息 *开发者模式*
@@ -120,7 +124,27 @@ public class MyConfig extends JFinalConfig {
         Prop p = PropKit.use("secondConfig.txt");
         String password = p.get("password");
 
-        // 使用得到的password
+        Prop dp = PropKit.use("db.properties");
+        String jdbc_username = dp.get("jdbc.username");
+        String jdbc_url = dp.get("jdbc.url");
+        String jdbc_password = dp.get("jdbc.password");
+        String jdbc_driver = dp.get("jdbc.driverClass");
+
+        // druid 的数据源插件
+        DruidPlugin druidPlugin = new DruidPlugin(jdbc_url,jdbc_username,jdbc_password,jdbc_driver);
+        plugins.add(druidPlugin);
+
+        // ActiveRecord 的支持插件
+        ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
+        plugins.add(activeRecordPlugin);
+
+        /*
+        * addMapping方法建立了数据库表名到Model的映射关系
+        * 第一行代码映射的表 默认主键名字为“id”
+        * 第二行
+        * */
+        activeRecordPlugin.addMapping("account", Account.class);
+        activeRecordPlugin.addMapping("book", Book.class);
     }
 
     /**
@@ -167,16 +191,30 @@ public class MyConfig extends JFinalConfig {
      * */
     @Override
     public void afterJFinalStart() {
-        System.out.println("JFinal Started!!");
+        super.afterJFinalStart();
+        System.out.println("JFinal Started!!*");
+        //File file = new File("Start"+System.currentTimeMillis()+".txt");
+        //try {
+        //    FileOutputStream fo = new FileOutputStream(file);
+        //} catch (FileNotFoundException e) {
+        //    e.printStackTrace();
+        //}
+
     }
 
     /**
      * JFinal会在系统关闭前回调beforeJFinalStop方法
-     * 但是好像打印不出东西 猜测是在项目结束之后运行的 项目内看不到
+     * 但是在Jetty环境下无法运行
      * */
     @Override
     public void beforeJFinalStop() {
-
+        super.beforeJFinalStop();
         System.out.println("JFinal Stop!!***");
+        //File file = new File("Stop"+System.currentTimeMillis()+".txt");
+        //try {
+        //    FileOutputStream fo = new FileOutputStream(file);
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //}
     }
 }

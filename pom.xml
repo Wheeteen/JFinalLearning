@@ -7,6 +7,7 @@
     <groupId>cn.youyinnn</groupId>
     <artifactId>JFinalLearning</artifactId>
     <version>1.0</version>
+    <packaging>war</packaging>
 
     <build>
         <plugins>
@@ -36,7 +37,8 @@
         <dependency>
             <groupId>com.jfinal</groupId>
             <artifactId>jfinal</artifactId>
-            <version>3.2</version>
+            <version>3.1</version>
+
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -44,11 +46,18 @@
             <version>RELEASE</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>com.jfinal</groupId>-->
+            <!--<artifactId>jetty-server</artifactId>-->
+            <!--<version>8.1.8</version>-->
+        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
         <dependency>
-            <groupId>com.jfinal</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>8.1.8</version>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.0.29</version>
         </dependency>
+
 
     </dependencies>
 
