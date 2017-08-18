@@ -83,4 +83,6 @@ public class Account extends Model<Account> {
         List<Account> accountList = Account.dao.find("select * from account");
         System.out.println(accountList);
     }
+
+
 }

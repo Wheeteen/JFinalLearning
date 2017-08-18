@@ -147,6 +147,8 @@ public class MyConfig extends JFinalConfig {
         * */
         activeRecordPlugin.addMapping("account", Account.class);
         activeRecordPlugin.addMapping("book", "book_id", Book.class);
+
+
     }
 
     /**
