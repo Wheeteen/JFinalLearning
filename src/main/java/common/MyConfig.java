@@ -3,6 +3,7 @@ package common;
 import com.jfinal.config.*;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
+import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.dialect.MysqlDialect;
 import com.jfinal.plugin.druid.DruidPlugin;
@@ -103,10 +104,293 @@ public class MyConfig extends JFinalConfig {
 
     /**
      * 此方法用来配置模板引擎
+     * 这个engine配置是针对render所配置的 和sql的engine无关
      * */
     @Override
     public void configEngine(Engine engine) {
+        /*
+        * setDevMode相当于热加载功能
+        * 该模式下的模板文件的修改都会及时生效
+        * 如果配置 则默认采用configConstant中的setDevMode 如果都不配置就是false
+        * */
+        engine.setDevMode(true);
+        engine.addSharedFunction("/common/_layout.html");
 
+        /*
+          模板引擎语法
+          */
+
+        /*
+        * 1、属性访问：user.name
+        *
+        *   - 假如user.getName()存在 则调用
+        *   - 假如user为Model子类 则调用user.get("name")
+        *   - 假如user为Record 则调用user.get("name")
+        *   - 假如user为Map 则调用user.get("name")
+        *   - 假如user具有public修饰过的name 则去user.name
+        *
+        * 还支持数组长度取值如array.length
+        * */
+
+        /*
+        * 2、方法调用
+        *
+        * 模板表达式中可以直接调用对象所有的public方法
+        * 方法调用还支持可变参数
+        *
+        *   #("ABCDEF".substring(0,2))
+        *   #(girl.getAge())
+        *   #(map.get("key))
+        * */
+
+        /*
+        * 3、静态属性访问和静态方法调用
+        *
+        * 类名加双冒号加静态属性名或者方法名就可以访问
+        * 这种方式可以避免在模板中使用常量 减少代码重构
+        *
+        *   #if(x.status == com.jfinal.club.common.model.Account::STATUS_LOCK_ID)
+        *       <span>已锁定<span>
+        *   #end
+        *
+        *   #if(com.xxx.xxx.ClassName::staticMethodName(args))
+        *       ...
+        *   #end
+        * */
+
+        /*
+        * 4、空合并安全取值操作符
+        *
+        *   value ?? "哈哈“
+        *
+        * 如果前面的value值为空 那么整个表达式就取后面的字符串值“哈哈”
+        * 该操作符的优先级高于所有数学计算运算符 低于单目运算符
+        * */
+
+        /*
+        * 5、单引号字符串
+        * 模板表达式中可以使用单引号引用表达字符串 可以和双引号协同工作
+        * */
+
+        /*
+        * 6、逗号表达式
+        *
+        *   1+2,3*4
+        *
+        * 整体表达式的值会取逗号后的值 但是逗号前的值也会执行
+        * */
+
+        /*
+        * 7、Map增强
+        *
+        * 在模板中 map定义使用大括号 元素定义使用key:value定义 用逗号分隔
+        * 其中key只能是string类型 不管有没有引号 所以get方式取值的时候只能用双引号取值
+        *
+        *   #set(map = {k1 : 123 , 'k2' : "abc" , "k3" : object})
+        *   #(map.k1)
+        *   #(map.get["k2"])
+        * */
+
+        /*
+        * 8、注释
+        *
+        *   ###这是单行注释
+        *
+        *   #--
+        *       这是多行注释
+        *   --#
+        * */
+
+        /*
+         模板引擎指令
+         */
+
+        /*
+        * 1、输出指令
+        *
+        * 可以输出前面的任何表达式值
+        *
+        *   #(...)
+        *   #(value)
+        *   #(value ??)
+        *   #(value ?? "Hello")
+        *   #(obj.method(), null)
+        *
+        *   第二行如果为null会报错 所以有第三行的写法
+        *   第五行使用逗号表达式 什么都不输出 仅仅执行前面的方法来完成某些操作
+        * */
+
+        /*
+        * 2、if指令
+        *
+        * (1)
+        *   #if(condition)
+        *       ...
+        *   #end
+        *
+        * (2)
+        *   #if(c1)
+        *       ...
+        *   #elseif(c2)
+        *       ...
+        *   #elseif(c3)
+        *       ...
+        *   #else
+        *       ...
+        *   #end
+        * */
+
+        /*
+        * 3、for指令
+        *
+        * (1)
+        *   #for(x : list)
+        *       #(x.field)
+        *   #end
+        *
+        * (2)
+        *   #for(x : map)
+        *       #(x.key)
+        *       #(x.value)
+        *   #end
+        *
+        * 当被迭代的目标为null的时候 for指令会直接跳过null 不需要做null判断
+        *
+        * 对for指令的状态进行获取
+        *
+        *   #for(x : listA)
+        *       #(for.index)
+        *       #(x.field)
+        *
+        *       #for(x : listB)
+        *           #(for.outer.index)
+        *           #(for.index)
+        *           #(x.field)
+        *       #end
+        *   #end
+        *
+        * 注意：
+        *   1、for指令中的x有自己的作用域 和for循环嵌套是一样的
+        *   2、for.outer是固定用法 用来获取外层for指令的状态
+        *
+        * 所有状态如下：
+        *   #for(x : list)
+        *       #(for.size)     被迭代对象的size值
+        *       #(for.index)    从0开始的下标值
+        *       #(for.count)    从1开始的记数值
+        *       #(for.first)    是否为第一次迭代
+        *       #(for.last)     是否为最后一次迭代
+        *       #(for.odd)      是否为奇数迭代
+        *       #(for.even)     是否为偶数迭代
+        *       #(for.outer)    引用上层for指令状态
+        *   #end
+        *
+        * 除了map和list for指令还可以用于Collection、Iterator、Array、普通数组、Enumeration等 用法完全一样
+        *
+        * for指令还支持else语句 当for指令迭代次数为0的时候 会执行else语句内的语句
+        *   #for(x : list)
+        *       ...
+        *   #else
+        *       ...
+        *   #end
+        *
+        * 除了增强型的写法 还可以使用常规写法 和常规不同的是 变量声明不需要类型 但是这种写法不支持for.size和for.last这两个状态
+        *   #for(i = 0 ; i < 100 ; i++)
+        *       #(i)
+        *   #end
+        *
+        * for指令还支持continue、break指令
+        * */
+
+        /*
+        * 4、set指令
+        *
+        * set指令用于声明变量的同时为其赋值 也可以为已存在变量赋值
+        * set指令只接收赋值表达式和逗号表达式的赋值
+        *
+        *   #set(x = 123)
+        *   #set(a = 1 , b = 2 , c = a + b)
+        *   #set(array[0] = 123)
+        * */
+
+        /*
+        * 5、include指令
+        *
+        * 用于将外部模板内容包含进来 被包含的内容会被解析为当前模板的一部分
+        *   #include("_sidebar.html")
+        *
+        * include指令接收一个String型参数 当不以“/”字符打头的时候 包含模板和当前模板同目录
+        * 当以“/”打头的时候 包含模板将以baseTemplatePath为相对路径取寻找文件
+        * 默认的baseTemplatePath为PathKit.getWebRootPath()
+        *
+        * include指令还可以无限制传入赋值表达式作为参数 如下有“_hot_list.html"
+        *   <div class="hot-list">
+        *       <h3>#(title)</h3>
+        *       <ul>
+        *           #for(x : list)
+        *               <li>
+        *                   <a href="#(url)/#(x.id)">
+        *                       #(x.title)
+        *                   </a>
+        *               </li>
+        *           #end
+        *       </ul>
+        *   </div>
+        *
+        * 可以按照以下方式引用
+        *   #include("_hot_list.html", title="热门栏目", list=projectList, url="/project")
+        *   #include("_hot_list.html", title="热门新闻", list=newsList, url="/news")
+        * 分别传入了不同的值生成不同的模板
+        * */
+
+        /*
+        * 6、render指令
+        *
+        * 和include指令一样 有两点不同
+        *
+        *   - render指令支持动态化模板参数
+        *       #render(temp)
+        *           temp可以是任意表达式 而include只能是字符串
+        *   - render指令中#define定义的模板参数只在其子模板中有效 在父模板中无效
+        * */
+
+        /*
+        * 7、define指令
+        *
+        * define指令是模板引擎的主要扩展方式之一 define指令可以定义模板函数
+        * 通过define指令 可以将需要被重用的模板片段定义成一个个template function
+        * 在调用的时候就可以传入参数实现多变功能
+        *
+        * 具体看_layout.html文件
+        * */
+
+        /*
+        * Shared Method拓展
+        *
+        * JF模板引擎可以直接使用java类中的任意public方法 并且被使用的java类不需要继承和实现任何接口 完全无耦合
+        *
+        * addSharedMethod方法把对象添加进引擎方法共享域中
+        * 下面的例子调用StrKit类的静态方法isBlank
+        *
+        *   #if(isBlank(nickName))
+        *       ...
+        *   #end
+        * */
+        engine.addSharedMethod(new StrKit());
+
+        /*
+        * Shared Object拓展
+        *
+        * 添加对象到模板引擎共享域中 可以直接全局使用
+        *
+        *   #(RESOURCE_HOST)
+        *
+        *   #if(sk.isBlank(nickName))
+        *       ...
+        *   #end
+        * */
+        engine.addSharedObject("RESOURCE_HOST", "http://res.jfinal.com");
+        engine.addSharedObject("sk", new StrKit());
     }
 
     /**

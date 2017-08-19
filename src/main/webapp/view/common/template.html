@@ -1,0 +1,23 @@
+#include("_layout.html")
+#@layout()
+#define content()
+<div>
+    这里是模板内容部分
+</div>
+#end
+
+<!--
+    第一行代码表示将“_layout.html”文件包含进来
+    第二行代码表示调用模板函数layout
+    layout中又调用当前文件定义的content函数
+    通常模板文件会非常通用 会重复使用include指令
+    我们可以在configEngine(Engine me)中使用方法
+    Engine.addSharedFunction("_layout.html")为所有模板设置共享的模板文件
+    这样就可以省略掉include指令
+
+    此外 模板函数支持形参 和java规则基本一样 不同的是不需要执行参数类型
+-->
+
+#define func(a, b)
+    #(a+b)
+#end
