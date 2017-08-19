@@ -7,6 +7,10 @@ import interceptor.InjectInterceptor;
 import model.Account;
 import model.Blog;
 
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @description:
  * @author: youyinnn
@@ -25,7 +29,7 @@ public class HelloController extends Controller {
         // 把这个对象放到session中
         setSessionAttr("account", account);
 
-        render("template.html");
+        render("common/template.html");
     }
 
     //配置多个Method级别的拦截器 仅拦截本方法
@@ -49,7 +53,6 @@ public class HelloController extends Controller {
     * 以下是一些方法调用例子
     * */
     public void testGetPara(){
-
 
         // 获取表单域中title值
         String title = getPara("title");
@@ -122,9 +125,60 @@ public class HelloController extends Controller {
      *          JSP
      *          Velocity
      *  缺省时默认为JFINAL_TEMPLATE
+     *
+     *  需要注意的是 如果我们的Controller方法里面没有任何的路由方法 那么默认的路由行为会路由到viewPath下和方法名一样的html文件
+     *  比如下面的方法如果没有任何的路由行为 就会默认路由到如下路径
+     *  D:\Users\bigyellow\workspace\JFinalLearning\src\main\webapp/testRender.html
+     *
+     *  我们可以调用路由方法来取消默认的路由行为
+     *      renderNull() 路由反馈空页 不渲染任何数据
      * */
     public void testRender(){
-        render("test.html");
+        System.out.println("testRender");
+
+        //路由到/path/test.html    这里path为“/” 所以视图路径为“/test.html”
+        //render("test.html");
+
+        //路由到根路径下的aaa/test.html
+        //render("/aaa/test.html");
+
+        List<Account> accountsList = new ArrayList<>();
+        Account a1 = new Account().set("username", "Jim").set("balance", 1010);
+        Account a2 = new Account().set("username", "Jany").set("balance", 1020);
+        Account a3 = new Account().set("username", "Johnson").set("balance", 5100);
+
+        accountsList.add(a1);
+        accountsList.add(a2);
+        accountsList.add(a3);
+
+        //路由返回如下格式Json 以accounts为根的list数据
+        //renderJson("accounts", accountsList);
+
+        //{
+        //    "accounts": [
+        //    {
+        //        "balance": 1010,
+        //            "username": "Jim"
+        //    },
+        //    {
+        //        "balance": 1020,
+        //            "username": "Jany"
+        //    },
+        //    {
+        //        "balance": 5100,
+        //            "username": "Johnson"
+        //    }
+        //  ]
+        //}
+
+        // 路由返回{"name":"James","age":20}Json对象
+        //renderJson(new Record().set("name", "James").set("age", 20));
+
+        // 路径返回test.html页面并且返回404错误码
+        //renderError(404, "test.html");
+
+        // 路由反馈空页 不渲染任何数据
+        renderNull();
     }
 
     /**
@@ -138,5 +192,15 @@ public class HelloController extends Controller {
         HelloService helloService = enhance(HelloService.class);
 
         helloService.hello("Jim",20);
+    }
+
+    public void backToController(){
+        HttpSession session = getSession();
+
+        Account account = (Account) session.getAttribute("account");
+
+        System.out.println(account);
+
+        renderNull();
     }
 }

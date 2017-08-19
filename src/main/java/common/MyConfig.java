@@ -90,8 +90,7 @@ public class MyConfig extends JFinalConfig {
         *       1、controllerKey、method、urlPara三部分必须使用“/”分隔
         *       2、controllerKey自身也可以包含正斜杠 如“/admin/article” 实质上实现了struts2的命名空间
         * */
-        routes.add("/se/hello", HelloController.class, "/common");
-        routes.add("/", HelloController.class, "/common");
+        routes.add("/hello", HelloController.class, "/");
 
         /*
         * 我们把前后端的路由拆分后在这里合并起来
