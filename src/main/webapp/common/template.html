@@ -2,11 +2,18 @@
 #@layout()
 #define content()
 <div>
-    这里是模板内容部分
+    这里是模板内容部分 <br>
+    #(session ??)<br>
+    ### 这样的取值表达式可以取出session中的对象
+    #(session.account.username ??)<br>
+    #("ABCDEF".substring(0,2) ??)<br>
+    #for(x : [1..10])
+        #(x) <br>
+    #end
 </div>
 #end
 
-<!--
+#--
     第一行代码表示将“_layout.html”文件包含进来
     第二行代码表示调用模板函数layout
     layout中又调用当前文件定义的content函数
@@ -16,7 +23,7 @@
     这样就可以省略掉include指令
 
     此外 模板函数支持形参 和java规则基本一样 不同的是不需要执行参数类型
--->
+--#
 
 #define func(a, b)
     #(a+b)

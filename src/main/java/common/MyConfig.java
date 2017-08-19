@@ -1,6 +1,7 @@
 package common;
 
 import com.jfinal.config.*;
+import com.jfinal.ext.interceptor.SessionInViewInterceptor;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.jfinal.kit.StrKit;
@@ -63,7 +64,7 @@ public class MyConfig extends JFinalConfig {
         *
         * 注意：当view以“/”打头时表示绝对路径 baseViewPath 和 viewPath 会被忽略
         * */
-        routes.setBaseViewPath("view");
+        //routes.setBaseViewPath("view");
 
         //routes.addInterceptor(new FrontInterceptor);
 
@@ -89,7 +90,8 @@ public class MyConfig extends JFinalConfig {
         *       1、controllerKey、method、urlPara三部分必须使用“/”分隔
         *       2、controllerKey自身也可以包含正斜杠 如“/admin/article” 实质上实现了struts2的命名空间
         * */
-        routes.add("/se/hello", HelloController.class, "");
+        routes.add("/se/hello", HelloController.class, "/common");
+        routes.add("/", HelloController.class, "/common");
 
         /*
         * 我们把前后端的路由拆分后在这里合并起来
@@ -105,6 +107,10 @@ public class MyConfig extends JFinalConfig {
     /**
      * 此方法用来配置模板引擎
      * 这个engine配置是针对render所配置的 和sql的engine无关
+     *
+     * 特别要注意的是：
+     *  在Web项目下使用模板引擎的渲染的前置条件是使用JF的render取路由到路径
+     *  而不是直接取访问资源地址
      * */
     @Override
     public void configEngine(Engine engine) {
@@ -121,7 +127,7 @@ public class MyConfig extends JFinalConfig {
           */
 
         /*
-        * 1、属性访问：user.name
+        * 1、field表达式 属性访问：user.name
         *
         *   - 假如user.getName()存在 则调用
         *   - 假如user为Model子类 则调用user.get("name")
@@ -199,6 +205,16 @@ public class MyConfig extends JFinalConfig {
         *   #--
         *       这是多行注释
         *   --#
+        * */
+
+        /*
+        * 9、范围数组定义
+        *
+        * #for(x : [1..10])
+        *   #(x)
+        * #end
+        *
+        * 会输出数字1到10
         * */
 
         /*
@@ -391,6 +407,8 @@ public class MyConfig extends JFinalConfig {
         * */
         engine.addSharedObject("RESOURCE_HOST", "http://res.jfinal.com");
         engine.addSharedObject("sk", new StrKit());
+
+
     }
 
     /**
@@ -468,6 +486,9 @@ public class MyConfig extends JFinalConfig {
 
         // 全局业务层拦截器
         //interceptors.addGlobalServiceInterceptor(...);
+
+        // 如果要在全局模板引擎里面使用session的话就要加这个配置
+        interceptors.add(new SessionInViewInterceptor());
     }
 
     /**

@@ -4,6 +4,7 @@ import com.jfinal.aop.Before;
 import com.jfinal.core.Controller;
 import interceptor.AInterceptor;
 import interceptor.InjectInterceptor;
+import model.Account;
 import model.Blog;
 
 /**
@@ -18,7 +19,13 @@ public class HelloController extends Controller {
     public void index(){
         System.out.println("hit");
         //renderText("这个方法是一个action");
-        render("index.html");
+        Account account = new Account();
+        account.set("username", "John");
+
+        // 把这个对象放到session中
+        setSessionAttr("account", account);
+
+        render("template.html");
     }
 
     //配置多个Method级别的拦截器 仅拦截本方法
