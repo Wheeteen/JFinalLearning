@@ -7,11 +7,17 @@ import com.jfinal.kit.PropKit;
 import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.dialect.MysqlDialect;
+import com.jfinal.plugin.cron4j.Cron4jPlugin;
 import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.template.Engine;
 import controller.HelloController;
+import it.sauronsoftware.cron4j.Scheduler;
+import it.sauronsoftware.cron4j.Task;
+import it.sauronsoftware.cron4j.TaskExecutionContext;
 import model.Account;
 import model.Book;
+
+import java.time.LocalTime;
 
 /**
  * @description:
@@ -454,6 +460,18 @@ public class MyConfig extends JFinalConfig {
         // 添加插件
         plugins.add(druidPlugin);
         plugins.add(activeRecordPlugin);
+
+
+        //JF的定时任务插件
+        Task task = new Task() {
+            @Override
+            public void execute(TaskExecutionContext taskExecutionContext) throws RuntimeException {
+                System.out.println("Plugin Haha");
+            }
+        };
+        Cron4jPlugin cron4jPlugin = new Cron4jPlugin();
+        cron4jPlugin.addTask("* * * * *", task);
+        //plugins.add(cron4jPlugin);
     }
 
     /**
@@ -505,13 +523,49 @@ public class MyConfig extends JFinalConfig {
     public void afterJFinalStart() {
         super.afterJFinalStart();
         System.out.println("JFinal Started!!*");
-        //File file = new File("Start"+System.currentTimeMillis()+".txt");
+
+        Scheduler scheduler = new Scheduler();
+        scheduler.schedule("*/2 * * * *", new Runnable() {
+            @Override
+            public void run() {
+                LocalTime now = LocalTime.now();
+                System.out.println("xixi [ " + now.getHour() + " : " + now.getMinute() + " ]");
+            }
+        });
+
+        //scheduler.start();
+
+        Task task = new Task() {
+            @Override
+            public void execute(TaskExecutionContext taskExecutionContext) throws RuntimeException {
+                LocalTime now = LocalTime.now();
+                System.out.println("sc [ " + now.getHour() + " : " + now.getMinute() + " ]");
+
+                taskExecutionContext.setStatusMessage("**********");
+            }
+
+            @Override
+            public boolean supportsStatusTracking() {
+                System.out.println("supportsStatusTracking");
+                return super.supportsStatusTracking();
+            }
+        };
+
+        Scheduler scheduler1 = new Scheduler();
+        String scid = scheduler1.schedule("*/2 * * * *", task);
+        System.out.println(scid);
+
+        scheduler1.start();
+
         //try {
-        //    FileOutputStream fo = new FileOutputStream(file);
-        //} catch (FileNotFoundException e) {
+        //    System.out.println("**");
+        //    Thread.sleep(1000L * 60L);
+        //} catch (InterruptedException e) {
         //    e.printStackTrace();
         //}
-
+        //
+        //System.out.println("deschedule："+scid);
+        //scheduler1.deschedule(scid);
     }
 
     /**
